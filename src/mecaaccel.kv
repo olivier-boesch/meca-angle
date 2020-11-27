@@ -1,0 +1,19 @@
+BoxLayout:
+    padding: '20dp'
+    spacing: '20dp'
+    orientation: 'vertical'
+    Label:
+        id: display
+        text: 'Off'
+        font_size: '200sp'
+        font_name: 'alarm_clock.ttf'
+    Button:
+        id: zero_btn
+        disabled: True
+        size_hint_y: 0.1
+        text: 'Set Zero'
+        on_release: app.set_zero()
+    ToggleButton:
+        size_hint_y: 0.1
+        text: 'Enable'
+        on_state: app.enable_accel(self.state=='down')
