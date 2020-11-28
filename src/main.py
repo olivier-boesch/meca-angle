@@ -1,3 +1,8 @@
+#!/usr/bin/python3
+"""
+    Application to measure phone and tablet angle with accelerometer
+        Olivier Boesch © 2020
+"""
 from kivy.app import App
 from kivy.clock import Clock
 import plyer
@@ -26,11 +31,13 @@ class MecaAccelApp(App):
     def enable_accel(self, on):
         if on:
             self.root.ids['zero_btn'].disabled = False
+            self.root.ids['reset_zero_btn'].disabled = False
             self.sensor_on = True
             plyer.accelerometer.enable()
             self.event = Clock.schedule_interval(lambda dt: self.show_angle(), 0.1)
         else:
             self.root.ids['zero_btn'].disabled = True
+            self.root.ids['reset_zero_btn'].disabled = True
             self.sensor_on = False
             self.event.cancel()
             plyer.accelerometer.disable()
@@ -41,6 +48,8 @@ class MecaAccelApp(App):
         # give time to do things
         sleep(0.1)
 
+    def reset_zero(self):
+        self.vzero = vect3d((0, 0, 1))
 
     def show_angle(self):
         try:
@@ -51,6 +60,6 @@ class MecaAccelApp(App):
         except TypeError:  # if None is output
             pass
 
-
-app = MecaAccelApp()
-app.run()
+if __name__ == '__main__':
+    app = MecaAccelApp()
+    app.run()
