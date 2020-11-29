@@ -5,22 +5,29 @@
 """
 from kivy.app import App
 from kivy.clock import Clock
+from kivy.logger import Logger
 import plyer
 from math import sqrt, acos, pi
 from time import sleep
+from operator import methodcaller
+from numbers import Number
 
 __version__ = '0.9'
-
 
 class vect3d:
     def __init__(self, v):
         self.x, self.y, self.z = v[:3]
 
+    @property
     def norm(self):
         return sqrt(self.x**2 + self.y**2 + self.z**2)
 
-    def dot_product(self, other):
-        return self.x * other.x + self.y * other.y + self.z * other.z
+    def __mul__(self, other):
+        """redefine self * other as dot product"""
+        if isinstance(other, vect3d):
+            return self.x * other.x + self.y * other.y + self.z * other.z
+        if isinstance(other, Number):
+            return vect3d((self.x * other, self.y * other, self.z * other))
 
 
 class MecaAccelApp(App):
@@ -46,7 +53,7 @@ class MecaAccelApp(App):
     def set_zero(self):
         self.vzero = vect3d(plyer.accelerometer.acceleration)
         # give time to do things
-        sleep(0.1)
+        sleep(0.05)
 
     def reset_zero(self):
         self.vzero = vect3d((0, 0, 1))
@@ -55,7 +62,9 @@ class MecaAccelApp(App):
         try:
             vac = vect3d(plyer.accelerometer.acceleration)
             # compute angle
-            ang = acos(vac.dot_product(self.vzero) / (vac.norm()*self.vzero.norm()))*180/pi
+            cosang = (vac * self.vzero) / (vac.norm * self.vzero.norm)
+            Logger.info("Angle: {:f}".format(cosang))
+            ang = acos(cosang) * 180 / pi
             self.root.ids['display'].text = "{:.0f}°".format(ang)
         except TypeError:  # if None is output
             pass
